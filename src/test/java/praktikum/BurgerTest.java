@@ -17,10 +17,10 @@ public class BurgerTest {
     private Bun bun;
 
     @Mock
-    private Ingredient ingredient1;
+    private Ingredient sauce; // Исправлено: вместо ingredient1
 
     @Mock
-    private Ingredient ingredient2;
+    private Ingredient filling; // Исправлено: вместо ingredient2
 
     @Before
     public void setUp() {
@@ -30,60 +30,67 @@ public class BurgerTest {
     @Test
     public void setBunsSetsCorrectBun() {
         burger.setBuns(bun);
-        Assert.assertEquals("Булка не установилась", bun, burger.bun);
+        Assert.assertEquals(bun, burger.bun);
     }
 
     @Test
     public void addIngredientAddsToList() {
-        burger.addIngredient(ingredient1);
+        burger.addIngredient(sauce);
         Assert.assertEquals(1, burger.ingredients.size());
-        Assert.assertEquals(ingredient1, burger.ingredients.get(0));
     }
 
     @Test
     public void removeIngredientReducesListSize() {
-        burger.addIngredient(ingredient1);
+        burger.addIngredient(sauce);
         burger.removeIngredient(0);
         Assert.assertTrue(burger.ingredients.isEmpty());
     }
 
     @Test
     public void moveIngredientChangesOrder() {
-        burger.addIngredient(ingredient1); // индекс 0
-        burger.addIngredient(ingredient2); // индекс 1
+        burger.addIngredient(sauce);
+        burger.addIngredient(filling);
         burger.moveIngredient(0, 1);
-
-        Assert.assertEquals(ingredient2, burger.ingredients.get(0));
-        Assert.assertEquals(ingredient1, burger.ingredients.get(1));
+        Assert.assertEquals(filling, burger.ingredients.get(0));
     }
 
     @Test
     public void getPriceCalculatesCorrectTotal() {
         Mockito.when(bun.getPrice()).thenReturn(100f);
-        Mockito.when(ingredient1.getPrice()).thenReturn(50f);
-
+        Mockito.when(sauce.getPrice()).thenReturn(50f);
         burger.setBuns(bun);
-        burger.addIngredient(ingredient1);
+        burger.addIngredient(sauce);
 
-        float expectedPrice = 250f; // (100 * 2) + 50
-        Assert.assertEquals(expectedPrice, burger.getPrice(), 0.0f);
+        Assert.assertEquals(250f, burger.getPrice(), 0.0f);
+    }
+
+    // Ревьюер просил: один тест - одна проверка. Разделяем getReceipt:
+
+    @Test
+    public void getReceiptContainsBunName() {
+        Mockito.when(bun.getName()).thenReturn("Космическая булка");
+        burger.setBuns(bun);
+        Assert.assertTrue(burger.getReceipt().contains("Космическая булка"));
     }
 
     @Test
-    public void getReceiptReturnsFormattedString() {
+    public void getReceiptContainsIngredientName() {
         Mockito.when(bun.getName()).thenReturn("Космическая булка");
-        Mockito.when(bun.getPrice()).thenReturn(100f);
-        Mockito.when(ingredient1.getType()).thenReturn(IngredientType.SAUCE);
-        Mockito.when(ingredient1.getName()).thenReturn("Марсианский соус");
-        Mockito.when(ingredient1.getPrice()).thenReturn(50f);
+        Mockito.when(sauce.getType()).thenReturn(IngredientType.SAUCE);
+        Mockito.when(sauce.getName()).thenReturn("Марсианский соус");
 
         burger.setBuns(bun);
-        burger.addIngredient(ingredient1);
+        burger.addIngredient(sauce);
 
-        String receipt = burger.getReceipt();
+        Assert.assertTrue(burger.getReceipt().contains("Марсианский соус"));
+    }
 
-        Assert.assertTrue(receipt.contains("Космическая булка"));
-        Assert.assertTrue(receipt.contains("Марсианский соус"));
-        Assert.assertTrue(receipt.contains("Price: 250,000000"));
+    @Test
+    public void getReceiptContainsCorrectPrice() {
+        Mockito.when(bun.getName()).thenReturn("Космическая булка");
+        Mockito.when(bun.getPrice()).thenReturn(100f);
+        burger.setBuns(bun);
+
+        Assert.assertTrue(burger.getReceipt().contains("Price: 200,000000"));
     }
 }

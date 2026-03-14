@@ -38,17 +38,17 @@ public class BurgerParameterizedTest {
         burger = new Burger();
     }
 
-    @Parameterized.Parameters(name = "Цена: булка={0}, доп={1} -> итого={2}")
+    @Parameterized.Parameters(name = "Цена бургера: булка={0}, ингредиент={1}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {100f, 200f, 400f},   // (100*2)+200
-                {300f, 50f, 650f},    // (300*2)+50
-                {0f, 10f, 10f}        // (0*2)+10
+                {100f, 200f, 400f},
+                {300.5f, 100f, 701f},
+                {0f, 50f, 50f}
         });
     }
 
     @Test
-    public void checkBurgerPrice() {
+    public void checkBurgerPriceCalculation() {
         Mockito.when(bun.getPrice()).thenReturn(bunPrice);
         Mockito.when(ingredient.getPrice()).thenReturn(ingredientPrice);
 
